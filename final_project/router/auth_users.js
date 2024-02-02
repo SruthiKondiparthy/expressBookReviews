@@ -57,27 +57,32 @@ regd_users.post("/login", (req,res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-    /*const isbn = req.params.isbn;
+    const isbn = req.params.isbn;
+    console.log(isbn);
     let book = books[isbn]
-    if (book) { //Check is book exists
-        let review = req.body.reviews.review;
-        let username = req.body.reviews.username;
-                
-        if(review) {
-            book["reviews"]["review"] = review
+    if(book){
+      let review = req.body.reviews;
+      if(review) {
+            book.reviews[req.session.authorization.username] = review            
         }
-        if(username) {
-            book["reviews"]["username"] = username
-        }
-        
-        res.send(`Book with the isbn  ${isbn} updated.`);
-    }
-    else{
-        res.send("Unable to find Book!");
-    }*/
-    console.log("I am in the function");
-    return res.status(300).json({message: "Yet to be implemented"});
+        books[isbn]=book;
+        res.send(`Book with the isbn:  ${isbn} and username: ${req.session.authorization.username} updated.`);
+    }else{
+        res.send("Unable to find book!");
+    }   
 });
+
+// Delete a review
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+    const book = books[req.params.isbn];
+    if (!book) {
+      return res.status(404).json({ message: "Book not found" });
+    } else {
+      console.log("I am in here Delete else")
+      delete book.reviews[req.session.authorization.username];
+      res.send("Review deleted successfully");
+    }
+  });
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
